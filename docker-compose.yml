@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+
+# This servide is disabled for now since it is not on te critical path
+# TODO: Figure out how to make the assistant service conet to it
+# Source: https://hub.docker.com/r/ollama/ollama
+# Helpful docs: https://docs.docker.com/compose/compose-file/compose-file-v3/
+#  ollama:
+#    image: ollama/ollama
+#    volumes:
+#      - ./ollama:/root/.ollama
+#    ports:
+#      - "11434:11434"
+#    expose:
+#      - "11434"
+#    container_name: ollama
+
+  assistant:
+    image: assistant:latest
+    build:
+      context: .
+      network: host
+    ports:
+      - "8000:8000"
+    working_dir: /home/appuser/app/
+    command: ["chainlit", "run", "/home/appuser/app/assistants/main.py"]
+#    depends_on:
+#      - ollama
