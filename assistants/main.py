@@ -34,9 +34,9 @@ def setup_runnable():
     cl.user_session.set("runnable", runnable)
 
 
-@cl.password_auth_callback
-def auth():
-    return cl.User(identifier="test")
+# @cl.password_auth_callback
+# def auth():
+#     return cl.User(identifier="test")
 
 
 @cl.on_chat_start
