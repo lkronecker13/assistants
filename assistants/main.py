@@ -1,13 +1,12 @@
 from operator import itemgetter
-import chainlit as cl
 
+import chainlit as cl
+from chainlit.types import ThreadDict
 from langchain.memory import ConversationBufferMemory
 from langchain_community.chat_models import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
-
-from chainlit.types import ThreadDict
+from langchain_core.runnables import RunnableConfig, RunnableLambda, RunnablePassthrough
 
 OLLAMA_MODEL = "openhermes"
 SYSTEM_MESSAGE = "You are multilingual expert writer that focuses on helping translate and correct text."
@@ -25,12 +24,12 @@ def setup_runnable():
     )
 
     runnable = (
-            RunnablePassthrough.assign(
-                history=RunnableLambda(memory.load_memory_variables) | itemgetter("history")
-            )
-            | prompt
-            | model
-            | StrOutputParser()
+        RunnablePassthrough.assign(
+            history=RunnableLambda(memory.load_memory_variables) | itemgetter("history")
+        )
+        | prompt
+        | model
+        | StrOutputParser()
     )
     cl.user_session.set("runnable", runnable)
 
@@ -49,7 +48,7 @@ async def on_chat_start():
 @cl.on_chat_resume
 async def on_chat_resume(thread: ThreadDict):
     memory = ConversationBufferMemory(return_messages=True)
-    root_messages = [m for m in thread["steps"] if m["parentId"] == None]
+    root_messages = [m for m in thread["steps"] if m["parentId"] is None]
     for message in root_messages:
         if message["type"] == "USER_MESSAGE":
             memory.chat_memory.add_user_message(message["output"])
@@ -70,8 +69,8 @@ async def on_message(message: cl.Message):
     res = cl.Message(content="")
 
     async for chunk in runnable.astream(
-            {"question": message.content},
-            config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler()]),
+        {"question": message.content},
+        config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler()]),
     ):
         await res.stream_token(chunk)
 
